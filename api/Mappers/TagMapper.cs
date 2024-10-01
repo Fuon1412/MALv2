@@ -14,5 +14,13 @@ namespace api.Mappers
                 Animes = tag.Animes.Select(a => a.toAnimeDTO()).ToList()
             };
         }
+
+      public static Tag toCreatedTagDTO(this CreatedTagDTO request)
+        {
+            return new Tag
+            {
+                Name = request.Name
+            };
+        }      
     }
 }   

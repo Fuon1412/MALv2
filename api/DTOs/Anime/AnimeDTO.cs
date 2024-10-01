@@ -6,7 +6,6 @@ namespace api.DTOs{
         public decimal Rating { get; set; }
         public decimal Score { get; set; }
         public int Episodes { get; set; }
-        
         public string Description { get; set; } = String.Empty;
         public string Image { get; set; } = String.Empty;
         public List<CharacterDTO> Characters { get; set; } = new List<CharacterDTO>();

@@ -13,6 +13,7 @@ namespace api.Models
         [Column(TypeName = "decimal(18, 2)")]
         public decimal Score { get; set; }
         public int Episodes { get; set; }
+        public int Rank { get; set;}
         
         public string Description { get; set; } = String.Empty;
         public string Image { get; set; } = String.Empty;

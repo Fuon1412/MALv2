@@ -19,6 +19,18 @@ namespace api.Mappers
             };
         }
 
-        
+        public static Anime toCreatedAnimeDTO(this CreateAnimeDTO request){
+            return new Anime{
+                Name = request.Name,
+                Description = request.Description,
+                Image = request.Image,
+                Episodes = request.Episodes,
+                Rating = request.Rating,
+                Score = request.Score,
+                Tags = request.TagIds.Select(t => new Tag{Id = t}).ToList(),
+                Genres = request.GenreIds.Select(g => new Genre{Id = g}).ToList(),
+                characters = request.CharacterIds.Select(c => new Character{Id = c}).ToList()
+            };
+        }
     }
 }

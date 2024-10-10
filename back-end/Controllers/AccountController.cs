@@ -37,7 +37,7 @@ namespace back_end.Controllers
 
             var newAccount = new Account
             {
-                Username = registerDTO.Username,
+                AccountName = registerDTO.AccountName,
                 Email = registerDTO.Email,
                 Status = "active"
             };
@@ -51,7 +51,7 @@ namespace back_end.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDTO loginDTO)
         {
-            var account = await _accountService.FindByEmailAsync(loginDTO.Email);
+            var account = await _accountService.FindByEmailAsync(loginDTO.AccountName);
             if (account == null)
             {
                 return BadRequest("Account not found.");
@@ -80,10 +80,10 @@ namespace back_end.Controllers
 
             var claims = new[]
             {
-                new Claim(JwtRegisteredClaimNames.Sub, account.Email),
+                new Claim(JwtRegisteredClaimNames.Sub, account.Email ?? string.Empty),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim("Status", account.Status),
-                new Claim("Username", account.Username),
+                new Claim("AccountName", account.AccountName),
             };
 
             var token = new JwtSecurityToken(

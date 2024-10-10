@@ -1,16 +1,12 @@
 import './assets/main.css'
-import 'ant-design-vue/dist/reset.css';
-import Antd from 'ant-design-vue';
+import 'bootstrap/dist/css/bootstrap.min.css'
+import 'bootstrap'
 import { createApp } from 'vue'
 import App from './App.vue'
-import { Form, Input, Button, Checkbox } from "ant-design-vue";
-import router from './route';
+import router from './router'
 
-const app = createApp(App).mount('#app');
+const app = createApp(App)
 
-app.use(Antd);
-app.use(Form);
-app.use(Input);
-app.use(Button);
-app.use(Checkbox);
-app.use(router);
+app.use(router)
+
+app.mount('#app')

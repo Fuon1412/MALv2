@@ -7,7 +7,7 @@ namespace Models.User
     {
         [Key]
         public int Id { get; set; }
-        public int AccountId { get; set; }
+        public required string AccountId { get; set; }
         [ForeignKey("AccountId")]
         public required Account Account { get; set; }
         public string FullName { get; set; } = string.Empty;

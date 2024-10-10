@@ -7,14 +7,17 @@ using System.Text;
 using Models.User;
 
 var builder = WebApplication.CreateBuilder(args);
-var app = builder.Build();
-var jwtKey = app.Configuration["JWT:Key"] ?? throw new ArgumentNullException("JWT:Key", "JWT key cannot be null");
+
+// Add services to the container.
+var jwtKey = builder.Configuration["JWT:Key"] ?? throw new ArgumentNullException("JWT:Key", "JWT key cannot be null");
 var key = Encoding.ASCII.GetBytes(jwtKey);
 
-builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddControllers();
-builder.Services.AddDbContext<DatabaseContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.AddIdentity<Account, IdentityRole>().AddEntityFrameworkStores<DatabaseContext>().AddDefaultTokenProviders();
+builder.Services.AddDbContext<DatabaseContext>(options => 
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddIdentity<Account, IdentityRole>()
+    .AddEntityFrameworkStores<DatabaseContext>()
+    .AddDefaultTokenProviders();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAuthentication(options =>
 {
@@ -42,6 +45,9 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("RequireUserRole", policy => policy.RequireRole("User"));
 });
 
+// Build the app after service configuration.
+var app = builder.Build();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -50,11 +56,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseAuthentication(); // Move this before Authorization
 app.UseAuthorization();
-app.UseAuthentication();
 
 app.MapControllers();
 
 app.Run();
-

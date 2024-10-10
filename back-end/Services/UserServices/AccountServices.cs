@@ -22,7 +22,8 @@ namespace Services.UserServices
         }
         public bool CheckPassword(Account account, string password)
         {
-            return account.Password == password;
+            var result = _passwordHasher.VerifyHashedPassword(account, account.Password, password);
+            return result == PasswordVerificationResult.Success;
         }
 
         //register service

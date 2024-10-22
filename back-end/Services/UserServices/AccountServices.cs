@@ -14,17 +14,6 @@ namespace Services.UserServices
             _context = context;
             _passwordHasher = passwordHasher;
         }
-        //login service
-        public async Task<Account?> FindByEmailAsync(string email)
-        {
-            return await _context.Accounts.FirstOrDefaultAsync(x => x.Email == email);
-        }
-
-        public bool CheckPassword(Account account, string password)
-        {
-            var result = _passwordHasher.VerifyHashedPassword(account, account.PasswordHash, password);
-            return result == PasswordVerificationResult.Success;
-        }
 
         //register service
         public async Task RegisterAsync(Account account, string password)
@@ -36,7 +25,22 @@ namespace Services.UserServices
 
         public async Task<Account?> FindByUsernameAsync(string username)
         {
-            return await _context.Accounts.FirstOrDefaultAsync(x => x.Username == username);   
+            return await _context.Accounts.FirstOrDefaultAsync(x => x.Username == username);
+        }
+        //login service
+        public async Task<Account?> FindByEmailAsync(string email)
+        {
+            return await _context.Accounts.FirstOrDefaultAsync(x => x.Email == email);
+        }
+
+        public bool CheckPassword(Account account, string password)
+        {
+            if (string.IsNullOrEmpty(account.PasswordHash))
+            {
+                throw new ArgumentNullException(nameof(account.PasswordHash), "Password hash cannot be null or empty.");
+            }
+            var result = _passwordHasher.VerifyHashedPassword(account, account.PasswordHash, password);
+            return result == PasswordVerificationResult.Success;
         }
     }
 }

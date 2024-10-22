@@ -15,24 +15,28 @@ namespace Services.UserServices
             _passwordHasher = passwordHasher;
         }
         //login service
-        public async Task<Account> FindByEmailAsync(string email)
+        public async Task<Account?> FindByEmailAsync(string email)
         {
-            var account = await _context.Accounts.FirstOrDefaultAsync(x => x.Email == email) ?? throw new Exception("Account not found");
-            return account;
+            return await _context.Accounts.FirstOrDefaultAsync(x => x.Email == email);
         }
+
         public bool CheckPassword(Account account, string password)
         {
-            var result = _passwordHasher.VerifyHashedPassword(account, account.Password, password);
+            var result = _passwordHasher.VerifyHashedPassword(account, account.PasswordHash, password);
             return result == PasswordVerificationResult.Success;
         }
 
         //register service
         public async Task RegisterAsync(Account account, string password)
         {
-            account.Password = _passwordHasher.HashPassword(account, password);
+            account.PasswordHash = _passwordHasher.HashPassword(account, password);
             _context.Accounts.Add(account);
             await _context.SaveChangesAsync();
         }
 
+        public async Task<Account?> FindByUsernameAsync(string username)
+        {
+            return await _context.Accounts.FirstOrDefaultAsync(x => x.Username == username);   
+        }
     }
 }

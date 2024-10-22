@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using DTOs.UserDTOs;
 using Models.User;
+using Services.UserServices;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -10,16 +11,10 @@ namespace back_end.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class AccountController : ControllerBase
+    public class AccountController(IAccountService accountService, IConfiguration configuration) : ControllerBase
     {
-        private readonly IAccountService _accountService;
-        private readonly IConfiguration _configuration;
-
-        public AccountController(IAccountService accountService, IConfiguration configuration)
-        {
-            _accountService = accountService;
-            _configuration = configuration;
-        }
+        private readonly IAccountService _accountService = accountService;
+        private readonly IConfiguration _configuration = configuration;
 
         // Register Method
         [HttpPost("register")]
@@ -30,15 +25,21 @@ namespace back_end.Controllers
             {
                 return BadRequest("Email is already registered.");
             }
-            if (registerDTO.Password != registerDTO.ConfirmPassword)
+            else if (await _accountService.FindByUsernameAsync(registerDTO.Username) != null)
+            {
+                return BadRequest("Username is already taken.");
+            }
+            else if (registerDTO.Password != registerDTO.ConfirmPassword)
             {
                 return BadRequest("Password and Confirm Password do not match.");
             }
 
             var newAccount = new Account
             {
-                AccountName = registerDTO.AccountName,
+                Id = Guid.NewGuid().ToString(),
+                Username = registerDTO.Username,
                 Email = registerDTO.Email,
+                Password = registerDTO.Password,
                 Status = "active"
             };
 
@@ -51,7 +52,7 @@ namespace back_end.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDTO loginDTO)
         {
-            var account = await _accountService.FindByEmailAsync(loginDTO.AccountName);
+            var account = await _accountService.FindByEmailAsync(loginDTO.Username);
             if (account == null)
             {
                 return BadRequest("Account not found.");
@@ -83,7 +84,7 @@ namespace back_end.Controllers
                 new Claim(JwtRegisteredClaimNames.Sub, account.Email ?? string.Empty),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim("Status", account.Status),
-                new Claim("AccountName", account.AccountName),
+                new Claim("Username", account.Username),
             };
 
             var token = new JwtSecurityToken(

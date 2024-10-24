@@ -1,7 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
-using DTOs.UserDTOs;
-using Models.User;
+using back_end.Interfaces.UserInterfaces;
+using System.Security.Claims;
+using back_end.DTOs.UserDTOs;
+using back_end.Models.User;
 using back_end.Utils;
+using Microsoft.AspNetCore.Authorization;
 
 namespace back_end.Controllers
 {
@@ -9,11 +12,13 @@ namespace back_end.Controllers
     [Route("apiv1/[controller]")]
     public class AccountController(IAccountService accountService, JwtTokenGenerator jwtTokenGenerator) : ControllerBase
     {
+        //Khai bao IAccountService de su dung cac ham trong AccountService
         private readonly IAccountService _accountService = accountService;
+        //Khai bao JwtTokenGenerator de su dung ham GenerateJwtToken
         private readonly JwtTokenGenerator _jwtTokenGenerator = jwtTokenGenerator;
 
         //Dung util de check xem input co chua sql injection khong
-        private IActionResult? ValidateInput(RegisterDTO registerDTO)
+        private BadRequestObjectResult? ValidateInput(RegisterDTO registerDTO)
         {
             if (InputValidator.ContainsSqlInjection(registerDTO.Username) ||
                 InputValidator.ContainsSqlInjection(registerDTO.Password) ||
@@ -26,10 +31,22 @@ namespace back_end.Controllers
             return null;
         }
 
-        private IActionResult? ValidateInput(LoginDTO loginDTO)
+        private BadRequestObjectResult? ValidateInput(LoginDTO loginDTO)
         {
             if (InputValidator.ContainsSqlInjection(loginDTO.Username) ||
                 InputValidator.ContainsSqlInjection(loginDTO.Password))
+            {
+                return BadRequest("Invalid input detected.");
+            }
+
+            return null;
+        }
+
+        private BadRequestObjectResult? ValidateInput(ChangePasswordDTO changePasswordDTO)
+        {
+            if (InputValidator.ContainsSqlInjection(changePasswordDTO.OldPassword) ||
+                InputValidator.ContainsSqlInjection(changePasswordDTO.NewPassword) ||
+                InputValidator.ContainsSqlInjection(changePasswordDTO.ConfirmNewPassword))
             {
                 return BadRequest("Invalid input detected.");
             }
@@ -68,7 +85,13 @@ namespace back_end.Controllers
                 Password = registerDTO.Password,
                 Status = "active"
             };
-
+            var newInfor = new UserInfor
+            {
+                Id = Guid.NewGuid().ToString(),
+                Account = newAccount,
+                AccountId = newAccount.Id,
+                FullName = "New User"
+            };
             await _accountService.RegisterAsync(newAccount, registerDTO.Password);
             var token = _jwtTokenGenerator.GenerateJwtToken(newAccount);
             return Ok(new { token });
@@ -96,6 +119,67 @@ namespace back_end.Controllers
 
             var token = _jwtTokenGenerator.GenerateJwtToken(account);
             return Ok(new { token });
+        }
+
+        //Signout Method
+        [HttpPost("signout")]
+        public IActionResult UserSignOut()
+        {
+            return Ok(new { message = "Sign out successfully." });
+        }
+
+        //Change Password Method
+        [HttpPost("change-password")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDTO changePasswordDTO)
+        {
+            var validationResult = ValidateInput(changePasswordDTO);
+            if (validationResult != null)
+            {
+                return validationResult;
+            }
+
+            if (changePasswordDTO.NewPassword == changePasswordDTO.OldPassword)
+            {
+                return BadRequest("New password and old password are the same.");
+            }
+
+            if (changePasswordDTO.NewPassword != changePasswordDTO.ConfirmNewPassword)
+            {
+                return BadRequest("New password and confirm new password do not match.");
+            }
+
+            //Get username from token
+            var username = User.FindFirst(ClaimTypes.Name)?.Value;
+            if (string.IsNullOrEmpty(username))
+            {
+                return Unauthorized("User not logged in.");
+            }
+
+            var account = await _accountService.FindByUsernameAsync(username);
+            if (account == null)
+            {
+                return Unauthorized("Account not found.");
+            }
+
+            // Change password
+            await _accountService.ChangePasswordAsync(account, changePasswordDTO.NewPassword);
+            return Ok(new { message = "Change password successfully." });
+        }
+
+        //Get User Information Method
+        [Authorize]
+        [HttpGet("user-info")]
+        public async Task<IActionResult> GetUserInfo()
+        {
+
+            return null;
+        }
+
+        //Change information Method
+        [HttpPost("change-infor")]
+        public async Task<IActionResult> ChangeInformation([FromBody] ChangeInformationDTO changeInformationDTO)
+        {
+            return Ok(new { message = "Change information successfully." });
         }
     }
 }

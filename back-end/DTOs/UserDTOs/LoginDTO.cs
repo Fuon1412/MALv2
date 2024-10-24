@@ -1,4 +1,4 @@
-namespace DTOs.UserDTOs
+namespace back_end.DTOs.UserDTOs
 {
     public class LoginDTO
     {

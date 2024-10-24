@@ -22,7 +22,7 @@ namespace back_end.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Models.User.Account", b =>
+            modelBuilder.Entity("back_end.Models.User.Account", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -57,23 +57,19 @@ namespace back_end.Migrations
                     b.ToTable("Accounts");
                 });
 
-            modelBuilder.Entity("Models.User.UserInfor", b =>
+            modelBuilder.Entity("back_end.Models.User.UserInfor", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("AccountId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime>("DoB")
+                    b.Property<DateTime?>("DoB")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("FullName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PhoneNumber")
@@ -87,18 +83,18 @@ namespace back_end.Migrations
                     b.ToTable("UserInfor");
                 });
 
-            modelBuilder.Entity("Models.User.UserInfor", b =>
+            modelBuilder.Entity("back_end.Models.User.UserInfor", b =>
                 {
-                    b.HasOne("Models.User.Account", "Account")
+                    b.HasOne("back_end.Models.User.Account", "Account")
                         .WithOne("UserInfor")
-                        .HasForeignKey("Models.User.UserInfor", "AccountId")
+                        .HasForeignKey("back_end.Models.User.UserInfor", "AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Account");
                 });
 
-            modelBuilder.Entity("Models.User.Account", b =>
+            modelBuilder.Entity("back_end.Models.User.Account", b =>
                 {
                     b.Navigation("UserInfor");
                 });

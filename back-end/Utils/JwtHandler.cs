@@ -1,5 +1,5 @@
 using Microsoft.IdentityModel.Tokens;
-using Models.User;
+using back_end.Models.User;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -31,6 +31,7 @@ namespace back_end.Utils
             {
                 new Claim(JwtRegisteredClaimNames.Sub, account.Email ?? string.Empty),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim("Id", account.Id),
                 new Claim("Status", account.Status),
                 new Claim("Username", account.Username),
             };

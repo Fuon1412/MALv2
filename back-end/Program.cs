@@ -4,8 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using Models.User;
-using Services.UserServices;
+using back_end.Models.User;
+using back_end.Services.UserServices;
+using back_end.Interfaces.UserInterfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -12,8 +12,8 @@ using back_end.Data;
 namespace back_end.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20241010091739_UpdateAccountModel")]
-    partial class UpdateAccountModel
+    [Migration("20241023150751_UpdateUserInforModel")]
+    partial class UpdateUserInforModel
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,20 +25,10 @@ namespace back_end.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Models.User.Account", b =>
+            modelBuilder.Entity("back_end.Models.User.Account", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("AccessFailedCount")
-                        .HasColumnType("int");
-
-                    b.Property<string>("AccountName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
@@ -46,30 +36,13 @@ namespace back_end.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("NormalizedEmail")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NormalizedUserName")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PasswordHash")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("bit");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
@@ -78,10 +51,8 @@ namespace back_end.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("UserName")
+                    b.Property<string>("Username")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -89,13 +60,10 @@ namespace back_end.Migrations
                     b.ToTable("Accounts");
                 });
 
-            modelBuilder.Entity("Models.User.UserInfor", b =>
+            modelBuilder.Entity("back_end.Models.User.UserInfor", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("AccountId")
                         .IsRequired()
@@ -119,18 +87,18 @@ namespace back_end.Migrations
                     b.ToTable("UserInfor");
                 });
 
-            modelBuilder.Entity("Models.User.UserInfor", b =>
+            modelBuilder.Entity("back_end.Models.User.UserInfor", b =>
                 {
-                    b.HasOne("Models.User.Account", "Account")
+                    b.HasOne("back_end.Models.User.Account", "Account")
                         .WithOne("UserInfor")
-                        .HasForeignKey("Models.User.UserInfor", "AccountId")
+                        .HasForeignKey("back_end.Models.User.UserInfor", "AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Account");
                 });
 
-            modelBuilder.Entity("Models.User.Account", b =>
+            modelBuilder.Entity("back_end.Models.User.Account", b =>
                 {
                     b.Navigation("UserInfor");
                 });

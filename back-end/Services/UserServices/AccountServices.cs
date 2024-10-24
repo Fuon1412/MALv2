@@ -1,19 +1,15 @@
 using back_end.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
-using Models.User;
+using back_end.Models.User;
+using back_end.Interfaces.UserInterfaces;
 
-namespace Services.UserServices
+namespace back_end.Services.UserServices
 {
-    public class AccountServices : IAccountService
+    public class AccountServices(DatabaseContext context, IPasswordHasher<Account> passwordHasher) : IAccountService
     {
-        private readonly DatabaseContext _context;
-        private readonly IPasswordHasher<Account> _passwordHasher;
-        public AccountServices(DatabaseContext context, IPasswordHasher<Account> passwordHasher)
-        {
-            _context = context;
-            _passwordHasher = passwordHasher;
-        }
+        private readonly DatabaseContext _context = context;
+        private readonly IPasswordHasher<Account> _passwordHasher = passwordHasher;
 
         //register service
         public async Task RegisterAsync(Account account, string password)
@@ -41,6 +37,13 @@ namespace Services.UserServices
             }
             var result = _passwordHasher.VerifyHashedPassword(account, account.PasswordHash, password);
             return result == PasswordVerificationResult.Success;
+        }
+        //change password service
+        public async Task ChangePasswordAsync(Account account, string newPassword)
+        {
+             account.PasswordHash = _passwordHasher.HashPassword(account, newPassword);
+            _context.Accounts.Add(account);
+            await _context.SaveChangesAsync();
         }
     }
 }
